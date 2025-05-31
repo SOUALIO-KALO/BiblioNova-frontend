@@ -1,14 +1,17 @@
-import "./App.css";
-import { Button } from "./components/ui/button";
+import { Outlet } from "react-router-dom";
+import Header from "./components/Header/Header";
+import Footer from "@/components/Footer/Footer";
 
-function App() {
+const App = () => {
   return (
-    <>
-      <div className="flex min-h-svh flex-col items-center justify-center bg-amber-200">
-        <Button>Click me</Button>
-      </div>
-    </>
+    <div className="min-h-screen bg-gray-50">
+      <Header />
+      <main>
+        <Outlet />
+      </main>
+      <Footer />
+    </div>
   );
-}
+};
 
 export default App;
