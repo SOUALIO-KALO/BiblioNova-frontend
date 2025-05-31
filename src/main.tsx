@@ -8,18 +8,17 @@ import BorrowedBooks from "./components/BorrowedBooks/BorrowedBooks";
 import ContactForm from "./components/ContactForm/ContactForm";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
+import { Provider } from "react-redux";
+import store from "./redux/store";
 
 const router = createBrowserRouter([
   {
     path: "/",
-    // This is the root path of the application
-    // The `element` property specifies the component to render for this route
-    // The `children` property defines nested routes
-    // Each child route can have its own path and element
-    // The `index: true` property indicates that this is the default route for the parent path
-    // The `element` property specifies the component to render for this route
-    // The `children` property defines nested routes
-    // Each child route can have its own path and element
+    // Ceci est le chemin racine de l'application
+    // La propriété `element` spécifie le composant à afficher pour cette route
+    // La propriété `children` définit les routes imbriquées
+    // Chaque route enfant peut avoir son propre chemin et composant
+    // La propriété `index: true` indique que c'est la route par défaut pour le chemin parent
     element: <App />,
     children: [
       {
@@ -48,6 +47,10 @@ const router = createBrowserRouter([
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <RouterProvider router={router} />
+    <Provider store={store}>
+      {/* Le composant Provider rend le store Redux disponible dans toute l'application */}
+      <RouterProvider router={router} />
+    </Provider>
+    {/* Le composant RouterProvider fournit le routeur à l'application, permettant la navigation entre les routes */}
   </React.StrictMode>
 );

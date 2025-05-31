@@ -1,10 +1,16 @@
+import { useDispatch } from "react-redux";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-
+import type { AppDispatch, RootState } from "@/redux/store";
+import { setQuery, fetchBooks } from "@/redux/features/booksSlice";
 import { useState } from "react";
+import { useSelector } from "react-redux";
 
 const SearchForm = () => {
   const [localQuery, setLocalQuery] = useState("");
+
+  const dispatch = useDispatch<AppDispatch>();
+  const query = useSelector((state: RootState) => state.books.query);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -16,6 +22,9 @@ const SearchForm = () => {
     if (localQuery.trim() === "") {
       return;
     }
+    dispatch(setQuery(localQuery));
+    dispatch(fetchBooks(localQuery));
+    setLocalQuery("");
   };
 
   return (
@@ -37,7 +46,7 @@ const SearchForm = () => {
         </Button>
       </form>
       <p>
-        Dernière recherche : <strong>{""}</strong>
+        Dernière recherche : <strong>{query}</strong>
       </p>
     </div>
   );
