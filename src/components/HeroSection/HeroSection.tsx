@@ -10,9 +10,13 @@ const HeroSection = () => {
         backgroundPosition: "bottom",
       }}
     >
-      <div className="z-10 bg-white bg-opacity-20 rounded-xl p-6 flex flex-col items-center justify-center">
-        <h1 className="text-4xl font-bold mb-4">LIVRES</h1>
-        <p className="mb-4">Indiquez le livre à rechercher</p>
+      <div className="z-10 backdrop-blur-sm bg-white/30 border rounded-xl p-6 flex flex-col items-center justify-center">
+        <h1 className="hero-title text-3xl font-semibold mb-4 text-white">
+          Bienvenue à BiblioNova
+        </h1>
+        <p className="hero-description mb-4 text-white">
+          Explorez notre collection de livres numériques.
+        </p>
         <SearchForm />
       </div>
     </div>

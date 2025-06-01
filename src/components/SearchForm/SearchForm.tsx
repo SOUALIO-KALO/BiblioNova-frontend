@@ -36,7 +36,7 @@ const SearchForm = () => {
           onChange={handleChange}
           placeholder="Rechercher un livre..."
           aria-label="Rechercher des livres"
-          className="w-[300px] bg-white text-black placeholder:text-black placeholder:text-sm placeholder:font-bold focus:outline-none focus:ring-0 focus:ring-offset-0"
+          className="w-[300px] bg-white text-black placeholder:text-neutral-500 placeholder:text-sm"
         />
         <Button
           type="submit"
@@ -45,8 +45,8 @@ const SearchForm = () => {
           Rechercher
         </Button>
       </form>
-      <p>
-        Dernière recherche : <strong>{query}</strong>
+      <p className="text-white">
+        Dernière recherche : <strong className="text-black">{query}</strong>
       </p>
     </div>
   );
