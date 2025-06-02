@@ -3,17 +3,44 @@ import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Link } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "@/redux/store";
+import type { LoginData } from "@/types/types";
+import { clearError, loginUser } from "@/redux/features/authSlice";
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+
+  //************** */
+
+  const dispatch = useDispatch<AppDispatch>();
+  const { loading, error } = useSelector((state: RootState) => state.auth);
+  const [formData, setFormData] = useState<LoginData>({
+    email: "",
+    password: "",
+  });
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    dispatch(loginUser(formData));
+  };
+
+  const handleClearError = () => {
+    dispatch(clearError());
+  };
+
+  //***************** */
+
+  /* const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
     // TODO: Implémenter la logique de connexion
     console.log("Login attempt:", { email, password });
-  };
+  }; */
 
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -22,6 +49,15 @@ const Login = () => {
           Connexion
         </h2>
       </div>
+
+      {error && (
+        <div className="text-red-500 flex flex-col items-center">
+          {error}
+          <Button onClick={handleClearError} variant="outline" className="ml-2">
+            Effacer
+          </Button>
+        </div>
+      )}
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -39,8 +75,8 @@ const Login = () => {
                 type="email"
                 autoComplete="email"
                 required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                value={formData.email}
+                onChange={handleChange}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -60,8 +96,8 @@ const Login = () => {
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
                 required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={formData.password}
+                onChange={handleChange}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 pr-10"
               />
               <button
@@ -81,9 +117,10 @@ const Login = () => {
           <div>
             <Button
               type="submit"
+              disabled={loading}
               className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              Se connecter
+              {loading ? "Chargement..." : "Se connecter"}
             </Button>
           </div>
         </form>

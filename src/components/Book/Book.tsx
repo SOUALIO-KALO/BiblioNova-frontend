@@ -37,8 +37,21 @@ const Book = ({ book }: IBookItemProps) => {
             loading="lazy"
           />
         )}
+        <p>
+          {" "}
+          <strong>Catégorie: </strong>
+          {book.category}
+        </p>
+        <p>
+          <strong>Langue: </strong>
+          {book.language}
+        </p>
+        <p>
+          <strong>Page: </strong>
+          {book.pageCount}
+        </p>
         <Accordion type="single" collapsible>
-          <AccordionItem value="item-1">
+          <AccordionItem value="description">
             <AccordionTrigger>
               {book.description
                 ? book.description.length > 100
@@ -56,7 +69,7 @@ const Book = ({ book }: IBookItemProps) => {
         {book.previewLink && (
           <Button
             variant="outline"
-            className="mt-2 transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
+            className="transition-colors duration-300 hover:bg-primary hover:text-primary-foreground"
           >
             <Link to={book.previewLink} target="_blank">
               Lire l'aperçu

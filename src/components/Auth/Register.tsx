@@ -2,30 +2,73 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Eye, EyeOff } from "lucide-react";
+import type { AppDispatch, RootState } from "@/redux/store";
+import { useDispatch, useSelector } from "react-redux";
+import { clearError, registerUser } from "@/redux/features/authSlice";
+import type { RegisterData } from "@/types/types";
+import { useNavigate } from "react-router-dom";
 
 const Register = () => {
-  const [formData, setFormData] = useState({
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [formData, setFormData] = useState<RegisterData>({
     firstName: "",
     lastName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [clientError, setClientError] = useState<string | null>(null);
+
+  const validatePassword = (password: string) => {
+    if (password.length < 8) {
+      return "Le mot de passe doit contenir au moins 8 caractères";
+    }
+    if (!/[A-Z]/.test(password)) {
+      return "Le mot de passe doit contenir au moins une majuscule";
+    }
+    if (!/[0-9]/.test(password)) {
+      return "Le mot de passe doit contenir au moins un chiffre";
+    }
+    return null;
+  };
+
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const { loading, error: serverError } = useSelector(
+    (state: RootState) => state.auth
+  );
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (clientError) setClientError(null);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implémenter la logique d'inscription
-    console.log("Register attempt:", formData);
+    console.log("Formulaire soumis", formData); // Débogage
+    const passwordError = validatePassword(formData.password);
+    if (passwordError) {
+      setClientError(passwordError);
+      return;
+    }
+    if (formData.password !== formData.confirmPassword) {
+      setClientError("Les mots de passe ne correspondent pas");
+      return;
+    }
+    const { firstName, lastName, email, password } = formData;
+    dispatch(registerUser({ firstName, lastName, email, password })).then(
+      (result) => {
+        if (result.meta.requestStatus === "fulfilled") {
+          navigate("/"); // Rediriger vers la page d'accueil après inscription
+        }
+      }
+    );
+  };
+
+  const handleClearError = () => {
+    dispatch(clearError());
+    setClientError(null);
   };
 
   return (
@@ -35,6 +78,15 @@ const Register = () => {
           Inscription
         </h2>
       </div>
+
+      {(serverError || clientError) && (
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm mt-6 text-red-500">
+          {serverError || clientError}
+          <Button onClick={handleClearError} variant="outline" className="ml-2">
+            Effacer
+          </Button>
+        </div>
+      )}
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
         <form className="space-y-6" onSubmit={handleSubmit}>
@@ -166,9 +218,10 @@ const Register = () => {
           <div>
             <Button
               type="submit"
+              disabled={loading}
               className="flex w-full justify-center rounded-md bg-indigo-600 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
             >
-              S'inscrire
+              {loading ? "Chargement..." : "S'inscrire"}
             </Button>
           </div>
         </form>
