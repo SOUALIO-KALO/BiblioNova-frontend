@@ -20,9 +20,9 @@ const App = () => {
   }, [dispatch, token]);
 
   return (
-    <div className=" flex flex-col min-h-screen bg-gray-50">
+    <div className="w-full flex flex-col min-h-screen bg-gray-50">
       <Header />
-      <main className="container mx-auto px-4 py-8 flex-1">
+      <main className="container mx-auto flex-1">
         {/* The Outlet component renders the child routes */}
         {/* This is where the nested routes will be rendered */}
         <Outlet />

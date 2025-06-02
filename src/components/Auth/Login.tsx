@@ -1,46 +1,49 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Eye, EyeOff } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "@/redux/store";
 import type { LoginData } from "@/types/types";
 import { clearError, loginUser } from "@/redux/features/authSlice";
+import { useState } from "react";
 
 const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
 
-  //************** */
-
   const dispatch = useDispatch<AppDispatch>();
-  const { loading, error } = useSelector((state: RootState) => state.auth);
-  const [formData, setFormData] = useState<LoginData>({
-    email: "",
-    password: "",
+  const navigate = useNavigate();
+  const { loading, error: serverError } = useSelector(
+    (state: RootState) => state.auth
+  );
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginData>({
+    defaultValues: {
+      email: "",
+      password: "",
+    },
   });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    dispatch(loginUser(formData));
+  const onSubmit = (data: LoginData) => {
+    dispatch(loginUser(data))
+      .then((result) => {
+        if (result.meta.requestStatus === "fulfilled") {
+          navigate("/");
+        }
+      })
+      .catch((err) => {
+        console.error("Erreur de connexion :", err);
+      });
   };
 
   const handleClearError = () => {
     dispatch(clearError());
   };
-
-  //***************** */
-
-  /* const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // TODO: Implémenter la logique de connexion
-    console.log("Login attempt:", { email, password });
-  }; */
 
   return (
     <div className="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
@@ -50,9 +53,9 @@ const Login = () => {
         </h2>
       </div>
 
-      {error && (
-        <div className="text-red-500 flex flex-col items-center">
-          {error}
+      {(serverError || errors.email || errors.password) && (
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm mt-6 text-red-500 flex flex-col items-center">
+          {serverError || errors.email?.message || errors.password?.message}
           <Button onClick={handleClearError} variant="outline" className="ml-2">
             Effacer
           </Button>
@@ -60,7 +63,7 @@ const Login = () => {
       )}
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div>
             <label
               htmlFor="email"
@@ -71,12 +74,15 @@ const Login = () => {
             <div className="mt-2">
               <Input
                 id="email"
-                name="email"
+                {...register("email", {
+                  required: "L'email est requis",
+                  pattern: {
+                    value: /^\S+@\S+$/i,
+                    message: "Email invalide",
+                  },
+                })}
                 type="email"
                 autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
             </div>
@@ -92,12 +98,11 @@ const Login = () => {
             <div className="mt-2 relative">
               <Input
                 id="password"
-                name="password"
+                {...register("password", {
+                  required: "Le mot de passe est requis",
+                })}
                 type={showPassword ? "text" : "password"}
                 autoComplete="current-password"
-                required
-                value={formData.password}
-                onChange={handleChange}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 pr-10"
               />
               <button

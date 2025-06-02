@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useForm } from "react-hook-form";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Eye, EyeOff } from "lucide-react";
@@ -7,60 +7,40 @@ import { useDispatch, useSelector } from "react-redux";
 import { clearError, registerUser } from "@/redux/features/authSlice";
 import type { RegisterData } from "@/types/types";
 import { useNavigate } from "react-router-dom";
+import { useState } from "react";
 
 const Register = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [formData, setFormData] = useState<RegisterData>({
-    firstName: "",
-    lastName: "",
-    email: "",
-    password: "",
-    confirmPassword: "",
-  });
-  const [clientError, setClientError] = useState<string | null>(null);
-
-  const validatePassword = (password: string) => {
-    if (password.length < 8) {
-      return "Le mot de passe doit contenir au moins 8 caractères";
-    }
-    if (!/[A-Z]/.test(password)) {
-      return "Le mot de passe doit contenir au moins une majuscule";
-    }
-    if (!/[0-9]/.test(password)) {
-      return "Le mot de passe doit contenir au moins un chiffre";
-    }
-    return null;
-  };
-
   const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   const { loading, error: serverError } = useSelector(
     (state: RootState) => state.auth
   );
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    watch,
+  } = useForm<RegisterData>({
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
+  });
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (clientError) setClientError(null);
-  };
+  const password = watch("password");
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Formulaire soumis", formData); // Débogage
-    const passwordError = validatePassword(formData.password);
-    if (passwordError) {
-      setClientError(passwordError);
-      return;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setClientError("Les mots de passe ne correspondent pas");
-      return;
-    }
-    const { firstName, lastName, email, password } = formData;
+  const onSubmit = (data: RegisterData) => {
+    console.log("Formulaire soumis", data); // Débogage
+    const { firstName, lastName, email, password } = data;
     dispatch(registerUser({ firstName, lastName, email, password })).then(
       (result) => {
         if (result.meta.requestStatus === "fulfilled") {
-          navigate("/"); // Rediriger vers la page d'accueil après inscription
+          navigate("/");
         }
       }
     );
@@ -68,7 +48,6 @@ const Register = () => {
 
   const handleClearError = () => {
     dispatch(clearError());
-    setClientError(null);
   };
 
   return (
@@ -79,17 +58,21 @@ const Register = () => {
         </h2>
       </div>
 
-      {(serverError || clientError) && (
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm mt-6 text-red-500">
-          {serverError || clientError}
-          <Button onClick={handleClearError} variant="outline" className="ml-2">
+      {serverError && (
+        <div className="flex flex-col items-center sm:mx-auto sm:w-full sm:max-w-sm mt-6 text-red-500">
+          {serverError}
+          <Button
+            onClick={handleClearError}
+            variant="outline"
+            className="w-fit ml-2"
+          >
             Effacer
           </Button>
         </div>
       )}
 
       <div className="mt-10 sm:mx-auto sm:w-full sm:max-w-sm">
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
           <div className="grid grid-cols-2 gap-4">
             <div>
               <label
@@ -101,13 +84,14 @@ const Register = () => {
               <div className="mt-2">
                 <Input
                   id="firstName"
-                  name="firstName"
-                  type="text"
-                  required
-                  value={formData.firstName}
-                  onChange={handleChange}
+                  {...register("firstName", {
+                    required: "Le prénom est requis",
+                  })}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+                {errors.firstName && (
+                  <p className="text-red-500">{errors.firstName.message}</p>
+                )}
               </div>
             </div>
 
@@ -121,13 +105,12 @@ const Register = () => {
               <div className="mt-2">
                 <Input
                   id="lastName"
-                  name="lastName"
-                  type="text"
-                  required
-                  value={formData.lastName}
-                  onChange={handleChange}
+                  {...register("lastName", { required: "Le nom est requis" })}
                   className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
                 />
+                {errors.lastName && (
+                  <p className="text-red-500">{errors.lastName.message}</p>
+                )}
               </div>
             </div>
           </div>
@@ -142,14 +125,15 @@ const Register = () => {
             <div className="mt-2">
               <Input
                 id="email"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                value={formData.email}
-                onChange={handleChange}
+                {...register("email", {
+                  required: "L'email est requis",
+                  pattern: { value: /^\S+@\S+$/i, message: "Email invalide" },
+                })}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
               />
+              {errors.email && (
+                <p className="text-red-500">{errors.email.message}</p>
+              )}
             </div>
           </div>
 
@@ -163,11 +147,20 @@ const Register = () => {
             <div className="mt-2 relative">
               <Input
                 id="password"
-                name="password"
+                {...register("password", {
+                  required: "Le mot de passe est requis",
+                  minLength: {
+                    value: 8,
+                    message:
+                      "Le mot de passe doit contenir au moins 8 caractères",
+                  },
+                  pattern: {
+                    value: /^(?=.*[A-Z])(?=.*\d)/,
+                    message:
+                      "Le mot de passe doit contenir une majuscule et un chiffre",
+                  },
+                })}
                 type={showPassword ? "text" : "password"}
-                required
-                value={formData.password}
-                onChange={handleChange}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 pr-10"
               />
               <button
@@ -181,6 +174,9 @@ const Register = () => {
                   <Eye className="h-5 w-5" />
                 )}
               </button>
+              {errors.password && (
+                <p className="text-red-500">{errors.password.message}</p>
+              )}
             </div>
           </div>
 
@@ -194,11 +190,13 @@ const Register = () => {
             <div className="mt-2 relative">
               <Input
                 id="confirmPassword"
-                name="confirmPassword"
+                {...register("confirmPassword", {
+                  required: "La confirmation du mot de passe est requise",
+                  validate: (value) =>
+                    value === password ||
+                    "Les mots de passe ne correspondent pas",
+                })}
                 type={showConfirmPassword ? "text" : "password"}
-                required
-                value={formData.confirmPassword}
-                onChange={handleChange}
                 className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 pr-10"
               />
               <button
@@ -212,6 +210,9 @@ const Register = () => {
                   <Eye className="h-5 w-5" />
                 )}
               </button>
+              {errors.confirmPassword && (
+                <p className="text-red-500">{errors.confirmPassword.message}</p>
+              )}
             </div>
           </div>
 
