@@ -32,6 +32,8 @@ body {
   place-items: center;
   grid-template-columns: auto;
   grid-template-rows: auto;
+  padding: 0;
+  margin: 0;
 }
 
 * {

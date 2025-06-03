@@ -14,10 +14,48 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
-import { BookOpen } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { BookOpen, Library } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import type { RootState, AppDispatch } from "@/redux/store";
+import { borrowBook } from "@/redux/features/borrowSlice";
+import { toast } from "react-toastify";
 
 const Book = ({ book }: IBookItemProps) => {
+  const dispatch = useDispatch<AppDispatch>();
+  const navigate = useNavigate();
+  const { token } = useSelector((state: RootState) => state.auth);
+  const { borrows, loading: borrowLoading } = useSelector(
+    (state: RootState) => state.borrow
+  );
+
+  // Vérifier si le livre est déjà emprunté
+  const isBorrowed = borrows.some(
+    (b) => b.bookId === book.bookId && !b.isReturned
+  );
+
+  const handleBorrow = () => {
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
+    dispatch(
+      borrowBook({
+        bookId: book.bookId,
+        bookTitle: book.title || "",
+        bookCover: book.imageUrl || "",
+        bookDetails: book.previewLink || "",
+      })
+    ).then((result) => {
+      if (result.meta.requestStatus === "fulfilled") {
+        toast.success("Livre emprunté avec succès !");
+      } else {
+        toast.error(result.payload as string);
+      }
+    });
+  };
+
   return (
     <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105">
       <CardHeader>
@@ -29,16 +67,15 @@ const Book = ({ book }: IBookItemProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {book.coverUrl && (
+        {book.imageUrl && (
           <img
-            src={book.coverUrl}
+            src={book.imageUrl}
             alt={book.title}
             className="w-full h-auto transition-transform duration-300 hover:scale-105"
             loading="lazy"
           />
         )}
         <p>
-          {" "}
           <strong>Catégorie: </strong>
           {book.category}
         </p>
@@ -65,7 +102,7 @@ const Book = ({ book }: IBookItemProps) => {
           </AccordionItem>
         </Accordion>
       </CardContent>
-      <CardFooter>
+      <CardFooter className="flex justify-between">
         {book.previewLink && (
           <Button
             variant="outline"
@@ -77,6 +114,15 @@ const Book = ({ book }: IBookItemProps) => {
             <BookOpen className="ml-2" />
           </Button>
         )}
+        <Button
+          onClick={handleBorrow}
+          disabled={borrowLoading || isBorrowed}
+          className="transition-colors duration-300 bg-indigo-600 hover:bg-indigo-500"
+          aria-label={`Emprunter ${book.title}`}
+        >
+          {isBorrowed ? "Déjà emprunté" : "Emprunter"}
+          <Library className="ml-2" />
+        </Button>
       </CardFooter>
     </Card>
   );

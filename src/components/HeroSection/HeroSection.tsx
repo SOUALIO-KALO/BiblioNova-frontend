@@ -3,7 +3,7 @@ import SearchForm from "../SearchForm/SearchForm";
 const HeroSection = () => {
   return (
     <div
-      className="w-full flex flex-col items-center justify-center min-h-[50vh]"
+      className="flex flex-col items-center justify-center min-h-[50vh]"
       style={{
         backgroundImage: `url(${heroImage})`,
         backgroundSize: "cover",

@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import type { AppDispatch, RootState } from "./redux/store";
 import { getProfile } from "./redux/features/authSlice";
 import { useSelector } from "react-redux";
+import { ToastContainer } from "react-toastify";
 
 const App = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -20,7 +21,7 @@ const App = () => {
   }, [dispatch, token]);
 
   return (
-    <div className="w-full flex flex-col min-h-screen bg-gray-50">
+    <div className="flex flex-col min-h-screen bg-gray-50">
       <Header />
       <main className="container mx-auto flex-1">
         {/* The Outlet component renders the child routes */}
@@ -28,6 +29,7 @@ const App = () => {
         <Outlet />
       </main>
       <Footer />
+      <ToastContainer />
     </div>
   );
 };
