@@ -36,6 +36,8 @@ const Book = ({ book }: IBookItemProps) => {
 
   const handleBorrow = () => {
     if (!token) {
+      toast.error("Veuillez vous connecter pour emprunter un livre.");
+      // Rediriger vers la page de connexion si l'utilisateur n'est pas connecté
       navigate("/login");
       return;
     }

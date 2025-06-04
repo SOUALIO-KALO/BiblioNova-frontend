@@ -1,10 +1,6 @@
-import React, { type JSX } from "react";
+import React from "react";
 import ReactDOM from "react-dom/client";
-import {
-  createBrowserRouter,
-  Navigate,
-  RouterProvider,
-} from "react-router-dom";
+import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import "./index.css";
 import App from "./App";
 import Home from "./components/Home/Home";
@@ -13,13 +9,8 @@ import ContactForm from "./components/ContactForm/ContactForm";
 import Login from "./components/Auth/Login";
 import Register from "./components/Auth/Register";
 import { Provider } from "react-redux";
-import store, { type RootState } from "./redux/store";
-import { useSelector } from "react-redux";
-
-const ProtectedRoute: React.FC<{ children: JSX.Element }> = ({ children }) => {
-  const { user } = useSelector((state: RootState) => state.auth);
-  return user ? children : <Navigate to="/login" />;
-};
+import store from "./redux/store";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 const router = createBrowserRouter([
   {

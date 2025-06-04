@@ -2,6 +2,8 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
+import { toast } from "react-toastify";
+import axios from "axios";
 
 const ContactForm = () => {
   const [formData, setFormData] = useState({
@@ -11,10 +13,79 @@ const ContactForm = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [errors, setErrors] = useState({
+    name: "",
+    email: "",
+    subject: "",
+    message: "",
+  });
+
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateForm = () => {
+    const newErrors = { name: "", email: "", subject: "", message: "" };
+    let isValid = true;
+
+    if (!formData.name.trim()) {
+      newErrors.name = "Le nom est requis";
+      isValid = false;
+    } else if (formData.name.length < 2) {
+      newErrors.name = "Le nom doit contenir au moins 2 caractères";
+      isValid = false;
+    }
+
+    if (!formData.email.trim()) {
+      newErrors.email = "L'email est requis";
+      isValid = false;
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "L'email n'est pas valide";
+      isValid = false;
+    }
+
+    if (!formData.subject.trim()) {
+      newErrors.subject = "Le sujet est requis";
+      isValid = false;
+    } else if (formData.subject.length < 3) {
+      newErrors.subject = "Le sujet doit contenir au moins 3 caractères";
+      isValid = false;
+    }
+
+    if (!formData.message.trim()) {
+      newErrors.message = "Le message est requis";
+      isValid = false;
+    } else if (formData.message.length < 10) {
+      newErrors.message = "Le message doit contenir au moins 10 caractères";
+      isValid = false;
+    }
+
+    setErrors(newErrors);
+    return isValid;
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: Implémenter l'envoi du formulaire
-    console.log("Form data:", formData);
+    setIsSubmitting(true);
+
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      toast.error("Veuillez corriger les erreurs dans le formulaire");
+      return;
+    }
+
+    try {
+      const API_URL =
+        import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+      await axios.post(`${API_URL}/contact`, formData);
+      toast.success("Message envoyé avec succès !");
+      setFormData({ name: "", email: "", subject: "", message: "" });
+      setErrors({ name: "", email: "", subject: "", message: "" });
+    } catch (error: any) {
+      toast.error(
+        error.response?.data?.message || "Échec de l'envoi du message"
+      );
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleChange = (
@@ -24,6 +95,11 @@ const ContactForm = () => {
     setFormData((prev) => ({
       ...prev,
       [name]: value,
+    }));
+    // Réinitialiser l'erreur pour ce champ
+    setErrors((prev) => ({
+      ...prev,
+      [name]: "",
     }));
   };
 
@@ -46,6 +122,9 @@ const ContactForm = () => {
               className="w-full"
               placeholder="Votre nom"
             />
+            {errors.name && (
+              <p className="text-red-500 text-sm">{errors.name}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -62,6 +141,9 @@ const ContactForm = () => {
               className="w-full"
               placeholder="votre@email.com"
             />
+            {errors.email && (
+              <p className="text-red-500 text-sm">{errors.email}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -78,6 +160,9 @@ const ContactForm = () => {
               className="w-full"
               placeholder="Sujet de votre message"
             />
+            {errors.subject && (
+              <p className="text-red-500 text-sm">{errors.subject}</p>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -93,13 +178,17 @@ const ContactForm = () => {
               className="w-full min-h-[150px]"
               placeholder="Votre message..."
             />
+            {errors.message && (
+              <p className="text-red-500 text-sm">{errors.message}</p>
+            )}
           </div>
 
           <Button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+            disabled={isSubmitting}
           >
-            Envoyer le message
+            {isSubmitting ? "Envoi en cours..." : "Envoyer le message"}
           </Button>
         </form>
       </div>

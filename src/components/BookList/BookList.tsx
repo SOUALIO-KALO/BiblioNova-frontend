@@ -22,7 +22,7 @@ const BookList = () => {
     return <div className="text-center">Aucun livre trouvé.</div>;
   }
   // Affichage de la liste des livres
-  const bookItems = books.map((book) => <Book key={book.id} book={book} />);
+  const bookItems = books.map((book) => <Book key={book.bookId} book={book} />);
   return (
     <div className="container mx-auto p-4">
       <h1 className="flex items-center justify-center text-2xl font-bold mb-6 text-center">

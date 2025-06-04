@@ -90,6 +90,37 @@ export const getUserBorrows = createAsyncThunk(
   }
 );
 
+// Prolonger un emprunt
+export const extendBorrow = createAsyncThunk(
+  "borrow/extendBorrow",
+  async ({ borrowId }: { borrowId: string }, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+      const borrow = state.borrow.borrows.find((b) => b._id === borrowId);
+
+      if (!borrow) {
+        return rejectWithValue("Emprunt non trouvé");
+      }
+
+      const newReturnDate = new Date(borrow.returnDate);
+      newReturnDate.setDate(newReturnDate.getDate() + 7); // Prolongation de 1 semaines
+
+      const response = await axios.patch(
+        `${API_URL}/borrows/extend/${borrowId}`,
+        { newReturnDate: newReturnDate.toISOString() },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      return response.data;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Échec de la prolongation"
+      );
+    }
+  }
+);
+
 const borrowSlice = createSlice({
   name: "borrow",
   initialState,
@@ -148,6 +179,29 @@ const borrowSlice = createSlice({
         }
       )
       .addCase(getUserBorrows.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Prolonger un emprunt
+    builder
+      .addCase(extendBorrow.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(
+        extendBorrow.fulfilled,
+        (state, action: PayloadAction<Borrow>) => {
+          state.loading = false;
+          const index = state.borrows.findIndex(
+            (b) => b._id === action.payload._id
+          );
+          if (index !== -1) {
+            state.borrows[index] = action.payload;
+          }
+        }
+      )
+      .addCase(extendBorrow.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
