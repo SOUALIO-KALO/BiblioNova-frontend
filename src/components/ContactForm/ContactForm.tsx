@@ -75,14 +75,31 @@ const ContactForm = () => {
     try {
       const API_URL =
         import.meta.env.VITE_API_URL || "http://localhost:5000/api";
-      await axios.post(`${API_URL}/contact`, formData);
-      toast.success("Message envoyé avec succès !");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-      setErrors({ name: "", email: "", subject: "", message: "" });
+      const response = await axios.post(`${API_URL}/contact`, formData);
+
+      if (response.status === 201) {
+        toast.success(
+          "Message envoyé avec succès ! Un email de confirmation vous a été envoyé."
+        );
+        setFormData({ name: "", email: "", subject: "", message: "" });
+        setErrors({ name: "", email: "", subject: "", message: "" });
+      }
     } catch (error: any) {
-      toast.error(
-        error.response?.data?.message || "Échec de l'envoi du message"
-      );
+      if (error.response) {
+        // Erreur avec réponse du serveur
+        const errorMessage = error.response.data.message;
+        toast.error(errorMessage);
+
+        // Mettre à jour les erreurs spécifiques si elles sont fournies
+        if (error.response.data.errors) {
+          setErrors(error.response.data.errors);
+        }
+      } else {
+        // Erreur réseau ou autre
+        toast.error(
+          "Une erreur est survenue lors de l'envoi du message. Veuillez réessayer."
+        );
+      }
     } finally {
       setIsSubmitting(false);
     }
