@@ -1,4 +1,5 @@
 import type { IBookItemProps } from "@/types/types";
+import coverNotAvailable from "@/assets/images/cover-not-available.jpg";
 import {
   Card,
   CardContent,
@@ -69,11 +70,18 @@ const Book = ({ book }: IBookItemProps) => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {book.imageUrl && (
+        {book.imageUrl ? (
           <img
             src={book.imageUrl}
             alt={book.title}
-            className="w-full h-auto transition-transform duration-300 hover:scale-105"
+            className="w-full max-h-64 object-cover transition-transform duration-300 hover:scale-105"
+            loading="lazy"
+          />
+        ) : (
+          <img
+            src={coverNotAvailable}
+            alt="Livre"
+            className="w-full max-h-64 object-cover transition-transform duration-300 hover:scale-105"
             loading="lazy"
           />
         )}
