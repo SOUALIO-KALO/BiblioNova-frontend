@@ -6,11 +6,24 @@ import {
   returnBook,
   clearError,
   extendBorrow,
+  deleteBorrow,
 } from "@/redux/features/borrowSlice";
 import type { Borrow } from "@/types/types";
 import { Button } from "../ui/button";
 import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
+import { Trash2 } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "../ui/alert-dialog";
 
 const BorrowedBooks: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -27,7 +40,7 @@ const BorrowedBooks: React.FC = () => {
 
   const handleReturnBook = (borrowId: string) => {
     dispatch(returnBook(borrowId)).then(() => {
-      dispatch(getUserBorrows()); // Rafraîchir la liste après retour
+      dispatch(getUserBorrows());
     });
   };
 
@@ -39,6 +52,10 @@ const BorrowedBooks: React.FC = () => {
         toast.error(result.payload as string);
       }
     });
+  };
+
+  const handleDeleteBorrow = (borrowId: string) => {
+    dispatch(deleteBorrow(borrowId));
   };
 
   const handleClearError = () => {
@@ -72,7 +89,7 @@ const BorrowedBooks: React.FC = () => {
                 alt={borrow.bookTitle}
                 className="w-24 h-32 object-cover"
               />
-              <div>
+              <div className="flex-grow">
                 <h3 className="font-semibold">{borrow.bookTitle}</h3>
                 <p>
                   Date d'emprunt :{" "}
@@ -84,30 +101,62 @@ const BorrowedBooks: React.FC = () => {
                 </p>
                 <p>Statut : {borrow.isReturned ? "Retourné" : "Emprunté"}</p>
 
-                {!borrow.isReturned && (
-                  <div className="mt-2 flex space-x-2 flex-wrap space-y-2">
-                    <Button>
-                      <Link to={borrow.bookDetails!} target="_blank">
-                        Voir Détails
-                      </Link>
-                    </Button>
-
-                    <Button
-                      onClick={() => handleReturnBook(borrow._id)}
-                      disabled={loading}
-                    >
-                      Retourner
-                    </Button>
-
-                    <Button
-                      onClick={() => handleExtendBorrow(borrow._id)}
-                      disabled={loading}
-                      variant="outline"
-                    >
-                      Prolonger
-                    </Button>
-                  </div>
-                )}
+                <div className="mt-2 flex space-x-2 flex-wrap space-y-2">
+                  {!borrow.isReturned ? (
+                    <>
+                      <Button>
+                        <Link to={borrow.bookDetails!} target="_blank">
+                          Voir Détails
+                        </Link>
+                      </Button>
+                      <Button
+                        onClick={() => handleReturnBook(borrow._id)}
+                        disabled={loading}
+                      >
+                        Retourner
+                      </Button>
+                      <Button
+                        onClick={() => handleExtendBorrow(borrow._id)}
+                        disabled={loading}
+                        variant="outline"
+                      >
+                        Prolonger
+                      </Button>
+                    </>
+                  ) : (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="destructive"
+                          size="icon"
+                          className="h-8 w-8"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>
+                            Supprimer l'emprunt
+                          </AlertDialogTitle>
+                          <AlertDialogDescription>
+                            Êtes-vous sûr de vouloir supprimer cet emprunt ?
+                            Cette action est irréversible.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Annuler</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => handleDeleteBorrow(borrow._id)}
+                            className="bg-red-600 hover:bg-red-700"
+                          >
+                            Supprimer
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </div>
             </li>
           ))}

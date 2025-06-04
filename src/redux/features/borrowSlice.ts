@@ -6,6 +6,7 @@ import {
 import axios from "axios";
 import type { Borrow } from "@/types/types";
 import type { RootState } from "../store";
+import { toast } from "react-toastify";
 
 interface BorrowState {
   borrows: Borrow[];
@@ -81,7 +82,13 @@ export const getUserBorrows = createAsyncThunk(
       const response = await axios.get(`${API_URL}/borrows/my-borrows`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data;
+
+      // Si un message est présent, afficher une notification
+      if (response.data.message) {
+        toast.info(response.data.message);
+      }
+
+      return response.data.borrows || response.data;
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Échec de la récupération des emprunts"
@@ -116,6 +123,26 @@ export const extendBorrow = createAsyncThunk(
     } catch (error: any) {
       return rejectWithValue(
         error.response?.data?.message || "Échec de la prolongation"
+      );
+    }
+  }
+);
+
+// Supprimer un emprunt
+export const deleteBorrow = createAsyncThunk(
+  "borrow/deleteBorrow",
+  async (borrowId: string, { getState, rejectWithValue }) => {
+    try {
+      const state = getState() as RootState;
+      const token = state.auth.token;
+      const response = await axios.delete(`${API_URL}/borrows/${borrowId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      toast.success(response.data.message);
+      return borrowId;
+    } catch (error: any) {
+      return rejectWithValue(
+        error.response?.data?.message || "Échec de la suppression"
       );
     }
   }
@@ -202,6 +229,23 @@ const borrowSlice = createSlice({
         }
       )
       .addCase(extendBorrow.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload as string;
+      });
+
+    // Supprimer un emprunt
+    builder
+      .addCase(deleteBorrow.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(deleteBorrow.fulfilled, (state, action) => {
+        state.loading = false;
+        state.borrows = state.borrows.filter(
+          (borrow) => borrow._id !== action.payload
+        );
+      })
+      .addCase(deleteBorrow.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload as string;
       });
