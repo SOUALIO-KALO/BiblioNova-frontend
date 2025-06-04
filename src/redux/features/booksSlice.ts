@@ -11,6 +11,8 @@ const initialState: IBooksState = {
   query: "",
   loading: false,
   error: null,
+  selectedCategory: "",
+  categories: [],
 };
 
 // Action asynchrone pour récupérer les livres
@@ -43,6 +45,12 @@ const booksSlice = createSlice({
     setQuery: (state, action: PayloadAction<string>) => {
       state.query = action.payload;
     },
+    setSelectedCategory: (state, action: PayloadAction<string>) => {
+      state.selectedCategory = action.payload;
+    },
+    setCategories: (state, action: PayloadAction<string[]>) => {
+      state.categories = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
@@ -56,6 +64,15 @@ const booksSlice = createSlice({
         (state, action: PayloadAction<IBook[]>) => {
           state.loading = false;
           state.books = action.payload;
+          // Extraire les catégories uniques des livres
+          const uniqueCategories = Array.from(
+            new Set(
+              action.payload
+                .map((book) => book.category)
+                .filter((category) => category && category !== "Inconnu")
+            )
+          );
+          state.categories = uniqueCategories;
         }
       )
       .addCase(fetchBooks.rejected, (state, action) => {
@@ -66,5 +83,6 @@ const booksSlice = createSlice({
 });
 
 // Exporter les actions et le reducer
-export const { setQuery } = booksSlice.actions;
+export const { setQuery, setSelectedCategory, setCategories } =
+  booksSlice.actions;
 export default booksSlice.reducer;

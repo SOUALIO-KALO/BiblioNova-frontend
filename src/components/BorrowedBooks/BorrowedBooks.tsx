@@ -58,7 +58,7 @@ const BorrowedBooks: React.FC = () => {
       )}
       {loading ? (
         <div className="flex justify-center items-center min-h-[200px]">
-          <div className="animate-spin rounded-full h-30 w-30 border-b-2 border-blue-500"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
         </div>
       ) : borrows.length > 0 ? (
         <ul className="space-y-4">
@@ -85,7 +85,7 @@ const BorrowedBooks: React.FC = () => {
                 <p>Statut : {borrow.isReturned ? "Retourné" : "Emprunté"}</p>
 
                 {!borrow.isReturned && (
-                  <div className="mt-2 flex space-x-2">
+                  <div className="mt-2 flex space-x-2 flex-wrap space-y-2">
                     <Button>
                       <Link to={borrow.bookDetails!} target="_blank">
                         Voir Détails

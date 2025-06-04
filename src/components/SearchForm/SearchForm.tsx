@@ -36,7 +36,7 @@ const SearchForm = () => {
           onChange={handleChange}
           placeholder="Rechercher un livre..."
           aria-label="Rechercher des livres"
-          className="w-[300px] bg-white text-black placeholder:text-neutral-500 placeholder:text-sm"
+          className="w-full sm:w-[300px] bg-white text-black placeholder:text-neutral-500 placeholder:text-sm"
         />
         <Button
           type="submit"

@@ -16,6 +16,8 @@ export interface IBooksState {
   query: string;
   loading: boolean;
   error: string | null;
+  selectedCategory: string;
+  categories: string[];
 } // Define the IBooksState interface for the books slice state
 
 export interface IBookItemProps {
