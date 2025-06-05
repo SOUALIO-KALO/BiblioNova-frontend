@@ -1,54 +1,102 @@
-# React + TypeScript + Vite
+# Biblio Nova - Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Description
 
-Currently, two official plugins are available:
+Biblio Nova est une application web moderne de gestion de bibliothèque développée avec React, TypeScript et Vite.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Technologies Utilisées
 
-## Expanding the ESLint configuration
+- React 18
+- TypeScript
+- Vite
+- Redux Toolkit pour la gestion d'état
+- React Router pour la navigation
+- Tailwind CSS pour le styling
+- React Toastify pour les notifications
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Fonctionnalités Principales
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+### 1. Authentification et Gestion des Utilisateurs
+
+- Système d'authentification complet (login/register)
+- Gestion des profils utilisateurs
+- Protection des routes
+- Gestion des tokens JWT
+
+### 2. Interface Utilisateur
+
+- Design responsive avec Tailwind CSS
+- Header avec navigation
+- Footer
+- Notifications toast pour le feedback utilisateur
+- Layout flexible et adaptatif
+
+### 3. Architecture
+
+- Structure modulaire avec séparation des composants
+- Gestion d'état centralisée avec Redux
+- Routing dynamique avec React Router
+- Types TypeScript pour une meilleure maintenabilité
+
+### 4. Composants Principaux
+
+- Header : Navigation principale
+- Footer : Informations de bas de page
+- Système de routing avec Outlet pour le rendu des pages
+- Composants réutilisables dans le dossier components/
+
+### 5. Gestion d'État
+
+- Store Redux pour la gestion globale de l'état
+- Slices Redux pour différentes fonctionnalités
+- Gestion de l'authentification avec authSlice
+
+## Installation
+
+```bash
+# Installation des dépendances
+npm install
+
+# Démarrage du serveur de développement
+npm run dev
+
+# Build pour la production
+npm run build
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Structure du Projet
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
 ```
+frontend/
+├── src/
+│   ├── components/     # Composants React réutilisables
+│   ├── redux/         # Configuration Redux et slices
+│   ├── types/         # Types TypeScript
+│   ├── assets/        # Ressources statiques
+│   ├── lib/           # Utilitaires et helpers
+│   └── App.tsx        # Composant racine
+```
+
+## Configuration ESLint
+
+Le projet utilise une configuration ESLint avancée pour assurer la qualité du code :
+
+- Règles TypeScript strictes
+- Règles React spécifiques
+- Vérification des types en temps réel
+
+## Développement
+
+Pour contribuer au projet :
+
+1. Assurez-vous d'avoir Node.js installé
+2. Clonez le repository
+3. Installez les dépendances avec `npm install`
+4. Lancez le serveur de développement avec `npm run dev`
+
+## Production
+
+Pour déployer en production :
+
+1. Exécutez `npm run build`
+2. Les fichiers optimisés seront générés dans le dossier `dist/`
