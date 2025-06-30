@@ -24,6 +24,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import coverNotAvailable from "@/assets/images/cover-not-available.jpg";
 
 const BorrowedBooks: React.FC = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -85,7 +86,11 @@ const BorrowedBooks: React.FC = () => {
               className="border p-4 rounded-md flex items-center space-x-4"
             >
               <img
-                src={borrow.bookCover}
+                src={
+                  borrow.bookCover === "neant"
+                    ? coverNotAvailable
+                    : borrow.bookCover
+                }
                 alt={borrow.bookTitle}
                 className="w-24 h-32 object-cover"
               />

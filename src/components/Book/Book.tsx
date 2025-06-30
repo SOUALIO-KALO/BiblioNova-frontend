@@ -47,7 +47,7 @@ const Book = ({ book }: IBookItemProps) => {
       borrowBook({
         bookId: book.bookId,
         bookTitle: book.title || "",
-        bookCover: book.imageUrl || "",
+        bookCover: book.imageUrl || "neant",
         bookDetails: book.previewLink || "",
       })
     ).then((result) => {
@@ -58,6 +58,8 @@ const Book = ({ book }: IBookItemProps) => {
       }
     });
   };
+
+  console.log(coverNotAvailable);
 
   return (
     <Card className="transition-all duration-300 hover:shadow-lg hover:scale-105">

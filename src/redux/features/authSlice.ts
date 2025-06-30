@@ -44,9 +44,9 @@ export const registerUser = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      console.log("Envoi de la requête d'inscription:", userData); // Débogage
+      // console.log("Envoi de la requête d'inscription:", userData); // Débogage
       const response = await axios.post(`${API_URL}/auth/register`, userData);
-      console.log("Réponse du serveur:", response.data); // Débogage
+      // console.log("Réponse du serveur:", response.data); // Débogage
       localStorage.setItem("token", response.data.token);
       return response.data;
     } catch (error: any) {
